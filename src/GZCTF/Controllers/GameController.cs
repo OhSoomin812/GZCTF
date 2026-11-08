@@ -1095,6 +1095,53 @@ public class GameController(
     }
 
     /// <summary>
+    /// Gets the solved story message for a challenge
+    /// </summary>
+    /// <remarks>
+    /// Returns the SolvedMessage of a challenge, but only to a team that has an
+    /// Accepted submission for it. Requires User permission and active participation.
+    /// </remarks>
+    /// <param name="id">Game ID</param>
+    /// <param name="challengeId">Challenge ID</param>
+    /// <param name="token"></param>
+    /// <response code="200">Successfully retrieved the solved message</response>
+    /// <response code="403">The team has not solved this challenge</response>
+    /// <response code="404">Game or challenge not found</response>
+    [RequireUser]
+    [HttpGet("{id:int}/Challenges/{challengeId:int}/SolvedMessage")]
+    [ProducesResponseType(typeof(ChallengeSolvedMessageModel), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(RequestResponse), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(RequestResponse), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetSolvedMessage([FromRoute] int id, [FromRoute] int challengeId,
+        CancellationToken token)
+    {
+        if (id <= 0 || challengeId <= 0)
+            return NotFound(new RequestResponse(localizer[nameof(Resources.Program.Challenge_NotFound)],
+                StatusCodes.Status404NotFound));
+
+        var context = await GetContextInfo(id, denyAfterEnded: false, token: token);
+
+        if (context.Result is not null)
+            return context.Result;
+
+        // Only a team that has actually solved the challenge may read its message
+        var solved = await submissionRepository.HasAccepted(context.Participation!.Id, challengeId, token);
+
+        if (!solved)
+            return StatusCode(StatusCodes.Status403Forbidden,
+                new RequestResponse(localizer[nameof(Resources.Program.Challenge_NotFound)],
+                    StatusCodes.Status403Forbidden));
+
+        var challenge = await challengeRepository.GetChallenge(id, challengeId, token);
+
+        if (challenge is null)
+            return NotFound(new RequestResponse(localizer[nameof(Resources.Program.Challenge_NotFound)],
+                StatusCodes.Status404NotFound));
+
+        return Ok(new ChallengeSolvedMessageModel { Message = challenge.SolvedMessage });
+    }
+
+    /// <summary>
     /// Get writeup information
     /// </summary>
     /// <remarks>

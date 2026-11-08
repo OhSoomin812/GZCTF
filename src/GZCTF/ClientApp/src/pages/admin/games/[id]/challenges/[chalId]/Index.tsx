@@ -332,6 +332,26 @@ const GameChallengeEdit: FC = () => {
               onChange={(e) => setChallengeInfo({ ...challengeInfo, content: e.target.value })}
             />
           </Grid.Col>
+          <Grid.Col span={2}>
+            <Textarea
+              w="100%"
+              label={
+                <Group gap="sm">
+                  <Text size="sm">정답 메시지 (스토리)</Text>
+                  <Text size="xs" c="dimmed">
+                    문제를 푼 팀에게만 한 글자씩 표시됩니다
+                  </Text>
+                </Group>
+              }
+              value={challengeInfo?.solvedMessage ?? ''}
+              autosize
+              disabled={disabled}
+              minRows={3}
+              maxRows={6}
+              maxLength={4096}
+              onChange={(e) => setChallengeInfo({ ...challengeInfo, solvedMessage: e.target.value })}
+            />
+          </Grid.Col>
           <Grid.Col span={1}>
             <Stack gap="0.425625rem">
               <NumberInput

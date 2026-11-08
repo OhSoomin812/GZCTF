@@ -36,6 +36,13 @@ public class GameChallenge : Challenge
     public double Difficulty { get; set; } = 5;
 
     /// <summary>
+    /// Story message shown to a team after they solve this challenge.
+    /// Only returned by the server to teams with an Accepted submission.
+    /// </summary>
+    [MaxLength(4096)]
+    public string? SolvedMessage { get; set; }
+
+    /// <summary>
     /// Current score of the challenge
     /// </summary>
     [NotMapped]
@@ -75,6 +82,7 @@ public class GameChallenge : Challenge
         FileName = model.FileName ?? FileName;
         DisableBloodBonus = model.DisableBloodBonus ?? DisableBloodBonus;
         SubmissionLimit = model.SubmissionLimit ?? SubmissionLimit;
+        SolvedMessage = model.SolvedMessage ?? SolvedMessage;
 
         // isEnabled should be updated alone
         IsEnabled = model.IsEnabled ?? IsEnabled;

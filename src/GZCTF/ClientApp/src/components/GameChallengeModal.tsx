@@ -6,6 +6,7 @@ import { Icon } from '@mdi/react'
 import React, { FC, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ChallengeModal } from '@Components/ChallengeModal'
+import { SolvedMessageModal } from '@Components/SolvedMessageModal'
 import { encryptApiData } from '@Utils/Crypto'
 import { showErrorMsg } from '@Utils/Shared'
 import { ChallengeCategoryItemProps } from '@Utils/Shared'
@@ -46,8 +47,28 @@ export const GameChallengeModal: FC<GameChallengeModalProps> = (props) => {
   const [submitId, setSubmitId] = useState(0)
   const [flag, setFlag] = useInputState('')
   const [solvedChallengeId, setSolvedChallengeId] = useState<number | null>(null)
+  const [solvedMessage, setSolvedMessage] = useState<string | null>(null)
+  const [storyText, setStoryText] = useState<string | null>(null)
 
   const isLimitReached = (challenge?.limit && (challenge.attempts ?? 0) >= challenge.limit) || false
+
+  const solved =
+    (status !== SubmissionType.Unaccepted && status !== undefined) || solvedChallengeId === challengeId
+
+  // Prefetch the story for an already-solved challenge so "view again" can be offered
+  useEffect(() => {
+    if (!props.opened || !solved) return
+    let active = true
+    api.game
+      .gameGetSolvedMessage(gameId, challengeId)
+      .then((r) => {
+        if (active && r.data?.message) setStoryText(r.data.message)
+      })
+      .catch(() => {})
+    return () => {
+      active = false
+    }
+  }, [props.opened, solved, gameId, challengeId])
 
   const onCreate = async () => {
     if (!challengeId || disabled) return
@@ -221,6 +242,16 @@ export const GameChallengeModal: FC<GameChallengeModalProps> = (props) => {
       })
       if (isDynamic && challenge.context?.instanceEntry) await requestDestroy()
       props.onClose()
+      // Fetch the story message (server only returns it to teams that solved it)
+      try {
+        const msg = await api.game.gameGetSolvedMessage(gameId, challengeId)
+        if (msg.data?.message) {
+          setSolvedMessage(msg.data.message)
+          setStoryText(msg.data.message)
+        }
+      } catch {
+        // no message set, or not yet readable — ignore, solving still succeeded
+      }
     } else if (data === AnswerResult.WrongAnswer) {
       updateNotification({
         id: 'flag-submitted',
@@ -247,21 +278,29 @@ export const GameChallengeModal: FC<GameChallengeModalProps> = (props) => {
   }
 
   return (
-    <ChallengeModal
-      {...modalProps}
-      gameTitle={gameTitle}
-      challenge={challenge ?? { title, score }}
-      cateData={cateData}
-      solved={(status !== SubmissionType.Unaccepted && status !== undefined) || solvedChallengeId === challengeId}
-      flag={flag}
-      setFlag={setFlag}
-      onCreate={onCreate}
-      onDestroy={onDestroy}
-      onSubmitFlag={onSubmit}
-      disabled={disabled || isLimitReached}
-      onExtend={onExtend}
-      gameEnded={gameEnded}
-      practiceMode={practiceMode}
-    />
+    <>
+      <ChallengeModal
+        {...modalProps}
+        gameTitle={gameTitle}
+        challenge={challenge ?? { title, score }}
+        cateData={cateData}
+        solved={solved}
+        flag={flag}
+        setFlag={setFlag}
+        onCreate={onCreate}
+        onDestroy={onDestroy}
+        onSubmitFlag={onSubmit}
+        disabled={disabled || isLimitReached}
+        onExtend={onExtend}
+        gameEnded={gameEnded}
+        practiceMode={practiceMode}
+        onViewStory={storyText ? () => setSolvedMessage(storyText) : undefined}
+      />
+      <SolvedMessageModal
+        opened={!!solvedMessage}
+        message={solvedMessage ?? ''}
+        onClose={() => setSolvedMessage(null)}
+      />
+    </>
   )
 }

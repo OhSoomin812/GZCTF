@@ -57,7 +57,11 @@
     <PackageVersion Include="Serilog.Sinks.Grafana.Loki" Version="9.0.1" />
     <PackageVersion Include="Serilog.Sinks.OpenTelemetry" Version="4.2.0" />
     <PackageVersion Include="SimpleBase" Version="5.6.1" />
-    <PackageVersion Include="SixLabors.ImageSharp" Version="4.0.0" />
+    <!-- Downgraded from 4.0.0: v4 enforces a build-time Six Labors license key.
+         3.1.x is the same Six Labors Split License (free for this use), needs no key,
+         and the APIs used in BlobRepository.cs (LoadAsync / Metadata.DecodedImageFormat /
+         Mutate+Resize / SaveAsWebpAsync) are unchanged. -->
+    <PackageVersion Include="SixLabors.ImageSharp" Version="3.1.12" />
     <PackageVersion Include="SharpPcap" Version="6.3.1" />
     <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.19.1" />
     <PackageVersion Include="PacketDotNet" Version="1.4.8" />

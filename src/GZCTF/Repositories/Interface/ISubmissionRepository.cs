@@ -75,4 +75,9 @@ public interface ISubmissionRepository : IRepository
     /// Count submissions for a specific participation and challenge.
     /// </summary>
     public Task<int> CountSubmissions(int participationId, int challengeId, CancellationToken token = default);
+
+    /// <summary>
+    /// Whether a participation has an Accepted submission for a specific challenge.
+    /// </summary>
+    public Task<bool> HasAccepted(int participationId, int challengeId, CancellationToken token = default);
 }

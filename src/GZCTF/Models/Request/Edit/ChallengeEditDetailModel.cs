@@ -28,6 +28,12 @@ public class ChallengeEditDetailModel
     public string Content { get; set; } = string.Empty;
 
     /// <summary>
+    /// Story message shown to a team after they solve this challenge
+    /// </summary>
+    [MaxLength(4096)]
+    public string? SolvedMessage { get; set; }
+
+    /// <summary>
     /// Challenge category
     /// </summary>
     [Required]
@@ -161,6 +167,7 @@ public class ChallengeEditDetailModel
             Id = chal.Id,
             Title = chal.Title,
             Content = chal.Content,
+            SolvedMessage = chal.SolvedMessage,
             Category = chal.Category,
             Type = chal.Type,
             FlagTemplate = chal.FlagTemplate,

@@ -21,6 +21,12 @@ public class ChallengeUpdateModel
     public string? Content { get; set; }
 
     /// <summary>
+    /// Story message shown to a team after they solve this challenge
+    /// </summary>
+    [MaxLength(4096)]
+    public string? SolvedMessage { get; set; }
+
+    /// <summary>
     /// Flag template, used to generate Flag based on Token and challenge/game information
     /// </summary>
     [MaxLength(Limits.MaxFlagTemplateLength, ErrorMessageResourceName = nameof(Resources.Program.Model_FlagTooLong),

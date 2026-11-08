@@ -29,6 +29,11 @@ public class SubmissionRepository(
         Context.Submissions.CountAsync(s =>
             s.ParticipationId == participationId && s.ChallengeId == challengeId, token);
 
+    public Task<bool> HasAccepted(int participationId, int challengeId, CancellationToken token = default) =>
+        Context.Submissions.AnyAsync(s =>
+            s.ParticipationId == participationId && s.ChallengeId == challengeId &&
+            s.Status == AnswerResult.Accepted, token);
+
     public Task<Submission[]> GetUncheckedFlags(CancellationToken token = default) =>
         Context.Submissions.Where(s => s.Status == AnswerResult.FlagSubmitted)
             .AsNoTracking().Include(e => e.Game).ToArrayAsync(token);

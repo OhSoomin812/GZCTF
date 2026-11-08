@@ -1116,6 +1116,11 @@ export interface ChallengeEditDetailModel {
   title: string;
   /** Challenge content */
   content?: string;
+  /**
+   * Story message shown to a team after they solve this challenge
+   * @maxLength 4096
+   */
+  solvedMessage?: string | null;
   /** Challenge category */
   category: ChallengeCategory;
   /** Challenge type */
@@ -1286,6 +1291,12 @@ export interface ChallengeInfoModel {
   deadlineUtc?: number | null;
 }
 
+/** Story message returned after a team solves a challenge */
+export interface ChallengeSolvedMessageModel {
+  /** The solved story message (null if the admin has not set one) */
+  message?: string | null;
+}
+
 /** Challenge update information (Edit) */
 export interface ChallengeUpdateModel {
   /**
@@ -1295,6 +1306,11 @@ export interface ChallengeUpdateModel {
   title?: string | null;
   /** Challenge content */
   content?: string | null;
+  /**
+   * Story message shown to a team after they solve this challenge
+   * @maxLength 4096
+   */
+  solvedMessage?: string | null;
   /**
    * Flag template, used to generate Flag based on Token and challenge/game information
    * @maxLength 120
@@ -5630,6 +5646,66 @@ export class Api<
     ) =>
       mutate<AnswerResult>(
         `/api/game/${id}/challenges/${challengeId}/status/${submitId}`,
+        data,
+        options,
+      ),
+
+    /**
+     * @description Returns the solved story message, only to a team that has solved the challenge
+     *
+     * @tags Game
+     * @name GameGetSolvedMessage
+     * @summary Gets the solved story message for a challenge
+     * @request GET:/api/game/{id}/challenges/{challengeId}/solvedmessage
+     */
+    gameGetSolvedMessage: (
+      id: number,
+      challengeId: number,
+      params: RequestParams = {},
+    ) =>
+      this.request<ChallengeSolvedMessageModel, RequestResponse>({
+        path: `/api/game/${id}/challenges/${challengeId}/solvedmessage`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+    /**
+     * @description Returns the solved story message, only to a team that has solved the challenge
+     *
+     * @tags Game
+     * @name GameGetSolvedMessage
+     * @summary Gets the solved story message for a challenge
+     * @request GET:/api/game/{id}/challenges/{challengeId}/solvedmessage
+     */
+    useGameGetSolvedMessage: (
+      id: number,
+      challengeId: number,
+      options?: SWRConfiguration,
+      doFetch: boolean = true,
+    ) =>
+      useSWR<ChallengeSolvedMessageModel, RequestResponse>(
+        doFetch
+          ? `/api/game/${id}/challenges/${challengeId}/solvedmessage`
+          : null,
+        options,
+      ),
+
+    /**
+     * @description Returns the solved story message, only to a team that has solved the challenge
+     *
+     * @tags Game
+     * @name GameGetSolvedMessage
+     * @summary Gets the solved story message for a challenge
+     * @request GET:/api/game/{id}/challenges/{challengeId}/solvedmessage
+     */
+    mutateGameGetSolvedMessage: (
+      id: number,
+      challengeId: number,
+      data?: ChallengeSolvedMessageModel | Promise<ChallengeSolvedMessageModel>,
+      options?: MutatorOptions,
+    ) =>
+      mutate<ChallengeSolvedMessageModel>(
+        `/api/game/${id}/challenges/${challengeId}/solvedmessage`,
         data,
         options,
       ),

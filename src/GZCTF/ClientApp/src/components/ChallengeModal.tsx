@@ -12,7 +12,7 @@ import {
   ScrollAreaAutosize,
   Input,
 } from '@mantine/core'
-import { mdiLightbulbOnOutline, mdiOpenInNew, mdiPackageVariantClosed } from '@mdi/js'
+import { mdiLightbulbOnOutline, mdiMessageTextOutline, mdiOpenInNew, mdiPackageVariantClosed } from '@mdi/js'
 import { Icon } from '@mdi/react'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
@@ -91,6 +91,8 @@ export interface ChallengeModalProps extends ModalProps {
   onDestroy: () => void
   onSubmitFlag: () => void
   onDownload?: () => void
+  /** Show a "view story again" button when solved; called when clicked */
+  onViewStory?: () => void
 }
 
 export const ChallengeModal: FC<ChallengeModalProps> = (props) => {
@@ -109,6 +111,7 @@ export const ChallengeModal: FC<ChallengeModalProps> = (props) => {
     onDestroy,
     onDownload,
     onSubmitFlag,
+    onViewStory,
     ...modalProps
   } = props
   const { t } = useTranslation()
@@ -268,6 +271,17 @@ export const ChallengeModal: FC<ChallengeModalProps> = (props) => {
         </>
       )}
       <Divider label={attemptsInfo} my={attemptsInfo ? '-0.4rem' : undefined} />
+      {solved && onViewStory && (
+        <Button
+          variant="light"
+          color="grape"
+          fullWidth
+          leftSection={<Icon path={mdiMessageTextOutline} size={0.9} />}
+          onClick={onViewStory}
+        >
+          스토리 다시 보기
+        </Button>
+      )}
       <form
         onSubmit={(e) => {
           e.preventDefault()

@@ -598,6 +598,10 @@ namespace GZCTF.Migrations
                     b.Property<int>("OriginalScore")
                         .HasColumnType("integer");
 
+                    b.Property<string>("SolvedMessage")
+                        .HasMaxLength(4096)
+                        .HasColumnType("character varying(4096)");
+
                     b.Property<int?>("StorageLimit")
                         .HasColumnType("integer");
 
